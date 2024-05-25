@@ -1,0 +1,37 @@
+# Archivo base para la creación de un servidor Docker DinD inseguro, sin ningún tipo de 
+# autenticación. 
+# Úsalo solamente para pruebas.
+
+# Puedes utilizar los valores por defecto simplemente ejecutando en esta carpeta el 
+# siguiente comando:
+
+  #> docker compose up
+
+# Tambien puedes cambiar el nombre del servidor usando el archivo 
+# "docker-compose-cambio-nombre-servidor.yml".
+
+services:
+  docker-dind:
+    image: tfg2asircanaveral2024/docker-dind:inseguro
+    # exponer los puertos al exterior es opcional, si los contenedores que vayan a
+    # interactuar con este contenedor están en su misma red, se podrán comunicar sin 
+    # publicar los puertos
+    ports:
+      - 2375:2375
+    privileged: true
+    user: "0"
+
+    volumes:
+      # el archivo de configuracion del daemon de docker, daemon.json, se encuentra en 
+      # la carpeta ./configuracion-docker. El fichero ya existe en el contenedor, pero 
+      # con este punto de montaje, es sustituido por el archivo de este directorio 
+      # llamado daemon.json, que puede ser editado por los usuarios antes de lanzar el 
+      # contenedor
+      - ./configuracion-docker:/etc/docker/:ro
+
+    networks:
+      - red-1
+
+networks:
+  red-1:
+    driver: bridge

@@ -1,0 +1,36 @@
+# Para que este contenedor sea más customizable, hemos decidido crear este archivo en 
+# que se incluyen los cambios necesarios que se deben realizar para cambiar el nombre del 
+# servidor Docker, que por defecto es "docker-dind".
+
+# El nombre del contenedor no cambia, simplemente se altera el alias de la red virtual a 
+# la que el contenedor esté conectado, es decir, el nombre que otros contenedores deben 
+# utilizar para comunicarse con el servidor de contenedorización. Sin embargo, como el 
+# servidor no utiliza ningún método de autenticación, responderá sin problema a cualquier 
+# nombre que se utilice para referenciarlo, incluyendo su dirección IP. 
+
+# Por tanto, aunque en el caso de un docker securizado este cambio tiene implicaciones 
+# serias y puede hacer que no funcione, en este caso el cambio es más trivial, y solo 
+# puede crear problemas si otros clientes utilizan el nombre "docker-dind" para referirse 
+# a este servidor después de que se le haya cambiado de nombre, ya que no podrán 
+# comunicarse con él.
+
+# Puedes o bien exportar el nuevo nombre a una variable de entorno llamada 
+# NOMBRE_SERVIDOR, o bien editar este archivo, para que allá donde aparezca: 
+# ${NOMBRE_SERVIDOR}
+# aparezca el nuevo nombre.
+
+# Nosotros recomendamos la opción de la variable de entorno, que se resolvería de la 
+# siguente forma:
+
+  #> export NOMBRE_SERVIDOR=$(cat nombre_servidor.txt)
+
+# Finalmente, para levantar el servidor DinD, utiliza este archivo como un override de 
+# Docker Compose, partiendo del archivo original. De la siguiente forma:
+
+  #> docker compose -f docker-compose.yml -f docker-compose-cambio-nombre-servidor.yml up
+services:
+  docker-dind:
+    networks:
+      red-1:
+        aliases:
+          - ${NOMBRE_SERVIDOR}
